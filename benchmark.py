@@ -1,7 +1,6 @@
 import json
 import time
 from pathlib import Path
-
 import mlflow
 import torch
 import torchaudio
@@ -31,23 +30,30 @@ MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"
 # GPU
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
+WHISPER_DECODE_PARAMS = {
+    "language": "ar",
+    "task": "transcribe",
+    "beam_size": 5,
+    "vad_filter": True,
+}
+
 # Models to compare
 MODELS = [
+    # {
+    #     "name": "whisper-small",
+    #     "type": "faster-whisper",
+    #     "model_id": "small",
+    # },
+    # {
+    #     "name": "whisper-medium",
+    #     "type": "faster-whisper",
+    #     "model_id": "medium",
+    # },
     {
-        "name": "whisper-small",
+        "name": "whisper-large-v3",
         "type": "faster-whisper",
-        "model_id": "small",
+        "model_id": "large-v3",
     },
-    {
-        "name": "whisper-medium",
-        "type": "faster-whisper",
-        "model_id": "medium",
-    },
-#     {
-#         "name": "whisper-large-v3",
-#         "type": "faster-whisper",
-#         "model_id": "large-v3",
-#     },
 #     {
 #         "name": "whisper-large-v3-turbo",
 #         "type": "faster-whisper",
@@ -253,17 +259,7 @@ def transcribe_faster_whisper(model, audio_path):
 
     segments, info = model.transcribe(
         str(audio_path),
-
-        # Fair configuration for comparison
-        beam_size=5,
-
-        # Let Whisper detect language
-        language=None,
-
-        task="transcribe",
-
-        # Remove silence
-        vad_filter=True,
+        **WHISPER_DECODE_PARAMS,
     )
 
     text = " ".join(
@@ -374,11 +370,11 @@ def benchmark_model(model_config):
                 "device": DEVICE,
                 "dataset": str(DATASET_FILE),
                 "num_samples": len(dataset),
-                "beam_size": 5,
-                "vad_filter": True,
-                "task": "transcribe",
             }
         )
+
+        if model_type == "faster-whisper":
+            mlflow.log_params(WHISPER_DECODE_PARAMS)
 
         # ----------------------------------------------------
         # Metrics
