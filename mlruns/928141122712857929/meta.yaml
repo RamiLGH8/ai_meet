@@ -1,0 +1,9 @@
+artifact_location: file:///home/rami/Desktop/Projects/ai_meet/mlruns/928141122712857929
+creation_time: 1788877944031
+effective_trace_archival_retention: null
+experiment_id: '928141122712857929'
+last_update_time: 1788877944031
+lifecycle_stage: active
+name: darija_asr_benchmark
+trace_location: null
+workspace: default
